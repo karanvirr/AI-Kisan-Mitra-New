@@ -55,7 +55,9 @@ const LiveAudio: React.FC = () => {
 
   // Fetch API key from server (not embedded in client bundle)
   const [geminiKey, setGeminiKey] = useState("");
+  const [clerkEnabled, setClerkEnabled] = useState(false);
   useEffect(() => {
+    setClerkEnabled(!!(window as any).__CLERK_ENABLED);
     fetch("/api/gemini-key")
       .then((r) => r.json())
       .then((d) => { if (d.key) setGeminiKey(d.key); })
@@ -477,7 +479,7 @@ const LiveAudio: React.FC = () => {
                 </span>
               </div>
             </div>
-            <UserButton />
+            {clerkEnabled && <UserButton />}
           </div>
         </div>
       </motion.header>
