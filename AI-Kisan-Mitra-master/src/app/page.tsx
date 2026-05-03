@@ -30,9 +30,15 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [clerkEnabled, setClerkEnabled] = useState(false);
   const [particlePositions, setParticlePositions] = useState<
     { left: string; top: string }[]
   >([]);
+
+  // Detect Clerk availability after mount (prevents SSR/static gen errors)
+  useEffect(() => {
+    setClerkEnabled(!!(window as any).__CLERK_ENABLED);
+  }, []);
 
   // Generate particles ONLY after mount (prevents hydration error)
   useEffect(() => {
@@ -90,44 +96,63 @@ export default function Home() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="px-4 py-2 hover:text-emerald-300">
-                Sign In
-              </button>
-            </SignInButton>
+          {clerkEnabled ? (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="px-4 py-2 hover:text-emerald-300">
+                    Sign In
+                  </button>
+                </SignInButton>
 
-            <SignUpButton mode="modal">
-              <button className="px-6 py-2 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition">
-                Get Started
-              </button>
-            </SignUpButton>
-          </SignedOut>
+                <SignUpButton mode="modal">
+                  <button className="px-6 py-2 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition">
+                    Get Started
+                  </button>
+                </SignUpButton>
+              </SignedOut>
 
-          <SignedIn>
-            <Link
-              href="/mandi-prices"
-              className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span>Mandi Prices</span>
-            </Link>
-            <Link
-              href="/planting-advisor"
-              className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2"
-            >
-              <Sprout className="w-4 h-4" />
-              <span>Planting Advisor</span>
-            </Link>
-            <Link
-              href="/chat"
-              className="px-6 py-2 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition flex items-center space-x-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Open Chat</span>
-            </Link>
-            <UserButton />
-          </SignedIn>
+              <SignedIn>
+                <Link
+                  href="/mandi-prices"
+                  className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Mandi Prices</span>
+                </Link>
+                <Link
+                  href="/planting-advisor"
+                  className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2"
+                >
+                  <Sprout className="w-4 h-4" />
+                  <span>Planting Advisor</span>
+                </Link>
+                <Link
+                  href="/chat"
+                  className="px-6 py-2 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition flex items-center space-x-2"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Open Chat</span>
+                </Link>
+                <UserButton />
+              </SignedIn>
+            </>
+          ) : (
+            <>
+              <Link href="/mandi-prices" className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Mandi Prices</span>
+              </Link>
+              <Link href="/planting-advisor" className="px-4 py-2 border border-emerald-500/40 rounded-xl hover:bg-emerald-500/20 transition flex items-center space-x-2">
+                <Sprout className="w-4 h-4" />
+                <span>Planting Advisor</span>
+              </Link>
+              <Link href="/chat" className="px-6 py-2 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition flex items-center space-x-2">
+                <MessageCircle className="w-4 h-4" />
+                <span>Open Chat</span>
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
@@ -141,38 +166,56 @@ export default function Home() {
           schemes in your native language.
         </p>
 
-        <SignedOut>
-          <SignUpButton mode="modal">
-            <button className="px-10 py-4 bg-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition">
-              Start Your Journey
-            </button>
-          </SignUpButton>
-        </SignedOut>
+        {clerkEnabled ? (
+          <>
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <button className="px-10 py-4 bg-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition">
+                  Start Your Journey
+                </button>
+              </SignUpButton>
+            </SignedOut>
 
-        <SignedIn>
+            <SignedIn>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <Link
+                  href="/chat"
+                  className="px-10 py-4 bg-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition"
+                >
+                  Open AI Assistant
+                </Link>
+                <Link
+                  href="/mandi-prices"
+                  className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  Check Mandi Prices
+                </Link>
+                <Link
+                  href="/planting-advisor"
+                  className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2"
+                >
+                  <Sprout className="w-5 h-5" />
+                  Planting Advisor
+                </Link>
+              </div>
+            </SignedIn>
+          </>
+        ) : (
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link
-              href="/chat"
-              className="px-10 py-4 bg-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition"
-            >
+            <Link href="/chat" className="px-10 py-4 bg-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition">
               Open AI Assistant
             </Link>
-            <Link
-              href="/mandi-prices"
-              className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2"
-            >
+            <Link href="/mandi-prices" className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Check Mandi Prices
             </Link>
-            <Link
-              href="/planting-advisor"
-              className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2"
-            >
+            <Link href="/planting-advisor" className="px-10 py-4 border-2 border-emerald-500 rounded-2xl font-bold text-lg hover:bg-emerald-500/20 transition flex items-center gap-2">
               <Sprout className="w-5 h-5" />
               Planting Advisor
             </Link>
           </div>
-        </SignedIn>
+        )}
       </section>
 
       {/* Stats Section */}
