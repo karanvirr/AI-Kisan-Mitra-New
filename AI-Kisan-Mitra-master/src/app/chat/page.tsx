@@ -223,7 +223,8 @@ const LiveAudio: React.FC = () => {
       const result = await diagnoseCropDisease(
         image,
         currentLanguage,
-        getPreviousChats()
+        getPreviousChats(),
+        geminiKey
       );
       console.log(result);
       const structuredResult = { ...result, name: "diagnose_crop_disease" };

@@ -226,7 +226,7 @@ Rules:
   ]);
 
   useEffect(() => {
-    if (!hasInitializedRef.current) {
+    if (!hasInitializedRef.current && apiKey) {
       initSession();
     }
 
@@ -240,7 +240,7 @@ Rules:
         sessionRef.current?.close();
       }
     };
-  }, [initSession]);
+  }, [initSession, apiKey]);
 
   const resetSession = useCallback(() => {
     if (reconnectTimerRef.current) {
