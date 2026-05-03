@@ -143,6 +143,7 @@ const LiveAudio: React.FC = () => {
   const {
     session,
     resetSession,
+    connectSession,
     searchResults: geminiSearchResults,
   } = useGeminiSession({
     apiKey: geminiKey,
@@ -180,10 +181,11 @@ const LiveAudio: React.FC = () => {
     if (session) {
       startRecording();
     } else {
-      // Session not ready yet — will auto-start once it connects
+      // Session not ready yet — connect and auto-start once ready
       pendingRecordRef.current = true;
+      connectSession();
     }
-  }, [isRecording, stopRecording, initAudio, session, startRecording]);
+  }, [isRecording, stopRecording, initAudio, session, startRecording, connectSession]);
 
   // Auto-start recording once session connects after mic click
   useEffect(() => {

@@ -36,6 +36,7 @@ interface UseGeminiSessionProps {
 interface GeminiSessionHook {
   session: any | null;
   resetSession: () => void;
+  connectSession: () => Promise<void>;
   searchResults: SearchResult[];
 }
 
@@ -163,13 +164,18 @@ export const useGeminiSession = ({
             sessionRef.current = null;
             setSessionReady(false);
 
-            // Auto-reconnect after a short delay
-            hasInitializedRef.current = false;
-            if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
-            reconnectTimerRef.current = setTimeout(() => {
-              updateStatus("Reconnecting...");
-              initSession();
-            }, 1500);
+            // Only auto-reconnect on unexpected closures (not normal close)
+            if (e.code !== 1000) {
+              hasInitializedRef.current = false;
+              if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+              reconnectTimerRef.current = setTimeout(() => {
+                updateStatus("Reconnecting...");
+                initSession();
+              }, 1500);
+            } else {
+              // Normal close — allow re-connection on next mic click
+              hasInitializedRef.current = false;
+            }
           },
         },
 
@@ -226,21 +232,23 @@ Rules:
   ]);
 
   useEffect(() => {
-    if (!hasInitializedRef.current && apiKey) {
-      initSession();
-    }
-
+    // Don't auto-connect on mount — session is created on-demand via connectSession()
     return () => {
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
         reconnectTimerRef.current = null;
       }
-      // 🔥 DO NOT close in development (StrictMode safety)
       if (process.env.NODE_ENV === "production") {
         sessionRef.current?.close();
       }
     };
-  }, [initSession, apiKey]);
+  }, []);
+
+  // Exposed method: connect session on demand (e.g. when mic is clicked)
+  const connectSession = useCallback(async () => {
+    if (sessionRef.current) return; // already connected
+    await initSession();
+  }, [initSession]);
 
   const resetSession = useCallback(() => {
     if (reconnectTimerRef.current) {
@@ -262,6 +270,7 @@ Rules:
   return {
     session: sessionRef.current,
     resetSession,
+    connectSession,
     searchResults: currentSearchResults,
   };
 };
